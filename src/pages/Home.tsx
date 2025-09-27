@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AnimatedBackground from '@/components/AnimatedBackground';
+import { useAuth } from '@/contexts/AuthContext';
+import { QRCodeSVG } from 'qrcode.react';
 import { 
   FiCalendar, 
   FiCheckCircle, 
@@ -10,46 +13,56 @@ import {
   FiZap,
   FiShield,
   FiArrowRight,
-  FiStar
+  FiStar,
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiBriefcase,
+  FiBook,
+  FiMessageSquare,
+  FiCheck,
+  FiCheckSquare
 } from 'react-icons/fi';
 
 const Home = () => {
+  const { user } = useAuth();
+
   const features = [
     {
       icon: FiCalendar,
       title: "Personalized Agenda",
       description: "AI-powered session recommendations tailored to your interests",
-      gradient: "from-blue-500 to-purple-500",
+      gradient: "from-primary to-secondary",
     },
     {
       icon: FiCheckCircle,
       title: "Seamless Check-in",
       description: "QR code-based instant check-in system for hassle-free entry",
-      gradient: "from-purple-500 to-pink-500",
+      gradient: "from-secondary to-accent",
     },
     {
       icon: FiUsers,
       title: "Smart Networking",
       description: "Connect with like-minded participants using AI matching",
-      gradient: "from-pink-500 to-red-500",
+      gradient: "from-accent to-primary",
     },
     {
       icon: FiCpu,
       title: "AI Concierge",
       description: "24/7 intelligent assistant for all your event queries",
-      gradient: "from-green-500 to-teal-500",
+      gradient: "from-primary to-accent",
     },
     {
       icon: FiZap,
       title: "Real-time Updates",
       description: "Instant notifications for schedule changes and announcements",
-      gradient: "from-yellow-500 to-orange-500",
+      gradient: "from-secondary to-primary",
     },
     {
       icon: FiShield,
       title: "Secure Platform",
       description: "Enterprise-grade security for your data and privacy",
-      gradient: "from-indigo-500 to-blue-500",
+      gradient: "from-primary to-secondary",
     },
   ];
 
@@ -75,6 +88,160 @@ const Home = () => {
     },
   };
 
+  // Show personalized dashboard for logged-in users
+  if (user) {
+    return (
+      <div className="min-h-screen p-8">
+        <AnimatedBackground />
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="container mx-auto relative z-10"
+        >
+          {/* Welcome Header */}
+          <h1 className="text-4xl font-bold mb-2">
+            Welcome, {user.name}!
+          </h1>
+          <p className="text-muted-foreground mb-8">Your intelligent event companion</p>
+
+          {/* Profile and QR Code Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Profile Card */}
+            <Card className="lg:col-span-2 hover-lift">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FiUser className="h-5 w-5" />
+                  Profile Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Full Name</p>
+                      <p className="font-medium">{user.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Role</p>
+                      <p className="font-medium capitalize">{user.role}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        {user.role === 'student' ? 'College' : 'Organization'}
+                      </p>
+                      <p className="font-medium">{user.college || user.company || 'N/A'}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Email</p>
+                      <p className="font-medium flex items-center gap-2">
+                        <FiMail className="h-4 w-4" />
+                        {user.email}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Mobile</p>
+                      <p className="font-medium flex items-center gap-2">
+                        <FiPhone className="h-4 w-4" />
+                        {user.mobile}
+                      </p>
+                    </div>
+                    {user.role === 'student' && user.year && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Year</p>
+                        <p className="font-medium">{user.year}</p>
+                      </div>
+                    )}
+                    {user.role === 'professional' && user.designation && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Designation</p>
+                        <p className="font-medium">{user.designation}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* QR Code Card */}
+            <Card className="hover-lift">
+              <CardHeader>
+                <CardTitle className="text-center">Registration QR</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center">
+                <div className="bg-white p-4 rounded-lg mb-4">
+                  <QRCodeSVG value={user.registrationId} size={150} />
+                </div>
+                <p className="text-sm font-mono font-medium text-center">{user.registrationId}</p>
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-muted-foreground">Check-in Status</p>
+                  <div className="flex items-center justify-center gap-2 mt-1">
+                    {user.checkedIn ? (
+                      <>
+                        <FiCheck className="h-4 w-4 text-accent" />
+                        <span className="text-accent font-medium">Checked In</span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">Not Checked In</span>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link to="/myevents">
+              <Card className="hover-lift cursor-pointer h-full">
+                <CardContent className="p-6">
+                  <FiCalendar className="h-8 w-8 mb-3 text-primary" />
+                  <h3 className="font-semibold mb-1">My Events</h3>
+                  <p className="text-sm text-muted-foreground">View your saved sessions</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/agenda">
+              <Card className="hover-lift cursor-pointer h-full">
+                <CardContent className="p-6">
+                  <FiBook className="h-8 w-8 mb-3 text-secondary" />
+                  <h3 className="font-semibold mb-1">Browse Agenda</h3>
+                  <p className="text-sm text-muted-foreground">Explore all sessions</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/chat">
+              <Card className="hover-lift cursor-pointer h-full">
+                <CardContent className="p-6">
+                  <FiMessageSquare className="h-8 w-8 mb-3 text-accent" />
+                  <h3 className="font-semibold mb-1">Group Chat</h3>
+                  <p className="text-sm text-muted-foreground">Connect with attendees</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/checkin">
+              <Card className="hover-lift cursor-pointer h-full">
+                <CardContent className="p-6">
+                  <FiCheckSquare className="h-8 w-8 mb-3 text-primary" />
+                  <h3 className="font-semibold mb-1">Check-in</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {user.checkedIn ? 'Already checked in' : 'Complete check-in'}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Public homepage for non-logged-in users
   return (
     <div className="min-h-screen relative overflow-hidden">
       <AnimatedBackground />
@@ -135,15 +302,15 @@ const Home = () => {
             transition={{ delay: 0.6 }}
           >
             <Link to="/auth">
-              <Button variant="hero" size="xl" className="group pulse-glow">
+              <Button variant="hero" size="xl" className="group apple-button">
                 Register Now
                 <FiArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/agenda">
-              <Button variant="glass" size="xl">
-                <FiCalendar className="mr-2" />
-                View Agenda
+            <Link to="/auth">
+              <Button variant="glass" size="xl" className="apple-button">
+                <FiUser className="mr-2" />
+                Login
               </Button>
             </Link>
           </motion.div>
@@ -230,7 +397,7 @@ const Home = () => {
               more connected hackathon experiences
             </p>
             <Link to="/auth">
-              <Button variant="hero" size="xl">
+              <Button variant="hero" size="xl" className="apple-button">
                 Get Started Now
                 <FiArrowRight className="ml-2" />
               </Button>

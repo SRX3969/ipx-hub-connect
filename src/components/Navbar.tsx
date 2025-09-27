@@ -21,16 +21,18 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
 
-  const navItems = [
+  // Navigation items visible only when logged in
+  const navItems = user ? [
     { path: '/', label: 'Home', icon: FiHome },
     { path: '/agenda', label: 'Agenda', icon: FiCalendar },
     { path: '/events', label: 'Events', icon: FiActivity },
+    { path: '/myevents', label: 'My Events', icon: FiCalendar },
     { path: '/chat', label: 'Chat', icon: FiMessageSquare },
     { path: '/checkin', label: 'Check-in', icon: FiCheckSquare },
-  ];
+  ] : [];
 
-  if (user?.isAdmin) {
-    navItems.push({ path: '/admin', label: 'Admin', icon: FiSettings });
+  if (user?.role === 'organizer') {
+    navItems.push({ path: '/admin', label: 'Organizer', icon: FiSettings });
   }
 
   return (

@@ -5,7 +5,7 @@ interface User {
   name: string;
   email: string;
   mobile: string;
-  type: 'professional' | 'student';
+  role: 'student' | 'professional' | 'organizer';
   company?: string;
   designation?: string;
   college?: string;
@@ -15,7 +15,6 @@ interface User {
   emergencyContact: string;
   registrationId: string;
   checkedIn: boolean;
-  isAdmin?: boolean;
 }
 
 interface AuthContextType {
